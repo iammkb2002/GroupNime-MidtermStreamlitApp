@@ -1,425 +1,426 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-import io
+import plotly.express as px
+import plotly.graph_objects as go
+from streamlit_lottie import st_lottie
+import requests
+from scipy.stats import skew
 
 # Configure the page
 st.set_page_config(
-    page_title="Data Exploration of Invistico Airline Dataset",
+    page_title="Invistico Airlines: A Data Journey",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# Hide Streamlit style for a cleaner look
-hide_st_style = """
-            <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            </style>
-            """
-st.markdown(hide_st_style, unsafe_allow_html=True)
+# Function to load Lottie animations
+def load_lottieurl(url: str):
+    try:
+        r = requests.get(url)
+        if r.status_code != 200:
+            return None
+        return r.json()
+    except:
+        return None
 
-# Load data function
+# Load animations with valid URLs
+welcome_animation_url = "https://assets10.lottiefiles.com/packages/lf20_jcikwtux.json"  # Celebration animation
+closing_animation_url = "https://assets8.lottiefiles.com/packages/lf20_x62chJ.json"  # Thank you animation
+
+# Sidebar Configuration
+st.sidebar.title("Navigate")
+options = st.sidebar.radio(
+    "Go to",
+    ["Welcome 🎉", "Discover the Data 📊", "Unveil Insights 🔍", "Our Journey 🚀"],
+)
+
+# Load the Dataset
 @st.cache_data
 def load_data():
     df = pd.read_csv('Invistico_Airline.csv')
     return df
 
-# Main Content
+df = load_data()
 
-# Sidebar Navigation
-st.sidebar.title("Navigation")
-options = st.sidebar.radio("Go to", ['Introduction', 'Data Exploration', 'Conclusions and Recommendations'])
+# Ensure the sidebar is wide enough to display full tags
+st.markdown(
+    """
+    <style>
+    [data-testid="stSidebar"] > div:first-child {
+        width: 300px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
-if options == 'Introduction':
-    # Group Information
-    st.markdown("""
-    <h1 style='text-align: center;'>Group Activity: Report on Data Exploration Techniques</h1>
-
-    ## Group Information
-
-    **Group Name:** Group Nime
-
-    **Group Leader:** Mark Kenneth S. Badilla
-
-    **Group Members:**
-    - James Alein Ocampo
-    - Alestair Cyril Coyoca
-    - Rob S. Borinaga
-    - Carmelyn Nime T. Gerali
-    """, unsafe_allow_html=True)
-
-    # Introduction
-    st.markdown("""
-    ## Introduction
-
-    Welcome to our data exploration app! In this activity, our group, **Group Nime**, dives into the **Invistico Airline Dataset** sourced from Kaggle. This dataset is rich with customer satisfaction information, featuring both numerical and categorical variables related to airline services.
-
-    ### Objective
-
-    Our primary goal is to perform data exploration using descriptive statistics to understand the central tendencies, spread, and relationships within the dataset. By the end of this exploration, we aim to present valuable insights and identify potential areas for further analysis.
-
-    ### Tools Used
-
-    - **pandas** for data manipulation
-    - **numpy** for numerical operations
-    - **seaborn** and **matplotlib** for data visualization
-    - **Streamlit** for building this interactive web application
-
-    **Let's embark on this data journey together! Use the navigation bar on the left to explore different sections of the analysis.**
-    """, unsafe_allow_html=True)
-
-elif options == 'Data Exploration':
-    # Load the Dataset
-    st.header("Load the Dataset")
-    df = load_data()
-    st.success("Dataset loaded successfully! Let's take a peek at what we're working with.")
-
-    # Initial Data Exploration
-    st.header("Initial Data Exploration")
-
-    st.subheader("Dataset Preview")
-    st.write(df.head())
-
-    st.markdown("""
-    *Here we can see a snapshot of the dataset, which gives us an initial understanding of the data structure and variables involved.*
-    """)
-
-    with st.expander("View DataFrame Info"):
-        buffer = io.StringIO()
-        df.info(buf=buffer)
-        s = buffer.getvalue()
-        st.text(s)
-        st.markdown("""
-        *This summary provides information about the data types and non-null counts of each column, helping us identify any immediate issues.*
-        """)
-
-    st.subheader("Missing Values in Each Column")
-    st.write(df.isnull().sum())
-
-    st.markdown("""
-    *It's essential to check for missing values early on. Here, we see that the 'Arrival Delay in Minutes' column has some missing values that we'll need to address.*
-    """)
-
-    st.subheader("Statistical Summary")
-    st.write(df.describe())
-
-    st.markdown("""
-    *The statistical summary offers a quick glance at the central tendencies and dispersion of our numerical variables.*
-    """)
-
-    # Data Cleaning
-    st.header("Data Cleaning")
-
-    st.markdown("""
-    **Data cleaning is a crucial step to ensure the accuracy and reliability of our analysis. Let's clean the dataset based on our initial findings.**
-    """)
-
-    # Handling Missing Values
-    st.subheader("Handling Missing Values")
-
-    st.markdown("""
-    We observed missing values in the **'Arrival Delay in Minutes'** column. Since they represent a small fraction of the data, we'll remove these rows to maintain data integrity.
-    """)
-
-    st.write("Number of missing values before cleaning:")
-    st.write(df.isnull().sum())
-
-    # Drop rows with missing 'Arrival Delay in Minutes'
-    df = df.dropna(subset=['Arrival Delay in Minutes'])
-
-    st.write("Number of missing values after cleaning:")
-    st.write(df.isnull().sum())
-
-    st.markdown("""
-    *Great! The missing values have been handled, ensuring our dataset is complete for the analysis.*
-    """)
-
-    # Data Type Conversion
-    st.subheader("Data Type Conversion")
-
-    st.markdown("""
-    Converting data types can improve performance and make analysis more straightforward. We'll convert categorical columns to the **'category'** data type and ensure numerical columns are appropriately formatted.
-    """)
-
-    # Convert categorical columns to 'category' data type
-    categorical_cols = ['satisfaction', 'Gender', 'Customer Type', 'Type of Travel', 'Class']
-    for col in categorical_cols:
-        df[col] = df[col].astype('category')
-
-    # Convert 'Arrival Delay in Minutes' to integer type
-    df['Arrival Delay in Minutes'] = df['Arrival Delay in Minutes'].astype(int)
-
-    st.write("Data types after conversion:")
-    st.write(df.dtypes)
-
-    st.markdown("""
-    *Data type conversion complete! This will help optimize memory usage and improve computation speed.*
-    """)
-
-    # Check for Duplicates
-    st.subheader("Check for Duplicates")
-
-    st.markdown("""
-    Duplicate entries can skew our analysis. Let's check if there are any and remove them if necessary.
-    """)
-
-    duplicates = df.duplicated().sum()
-    st.write(f"Number of duplicate rows: **{duplicates}**")
-
-    # Remove duplicate rows if any
-    df = df.drop_duplicates()
-
-    duplicates_after = df.duplicated().sum()
-    st.write(f"Number of duplicate rows after removal: **{duplicates_after}**")
-
-    st.markdown("""
-    *No more duplicates! Our dataset is now clean and ready for exploration.*
-    """)
-
-    # Outlier Detection and Handling
-    st.subheader("Outlier Detection and Handling")
-
-    st.markdown("""
-    Outliers can significantly impact our analysis. We'll cap extreme values in **'Departure Delay in Minutes'** and **'Arrival Delay in Minutes'** at the 99th percentile to mitigate their effect.
-    """)
-
-    # Cap outliers at the 99th percentile
-    departure_delay_cap = df['Departure Delay in Minutes'].quantile(0.99)
-    arrival_delay_cap = df['Arrival Delay in Minutes'].quantile(0.99)
-
-    df['Departure Delay in Minutes'] = np.where(
-        df['Departure Delay in Minutes'] > departure_delay_cap,
-        departure_delay_cap,
-        df['Departure Delay in Minutes']
+if options == "Welcome 🎉":
+    # Welcome Page with Animation
+    st.markdown(
+        """
+        <h1 style='text-align: center; font-size: 60px;'>Welcome to Invistico Airlines Data Journey</h1>
+        """,
+        unsafe_allow_html=True,
     )
 
-    df['Arrival Delay in Minutes'] = np.where(
-        df['Arrival Delay in Minutes'] > arrival_delay_cap,
-        arrival_delay_cap,
-        df['Arrival Delay in Minutes']
+    lottie_welcome = load_lottieurl(welcome_animation_url)
+    if lottie_welcome:
+        st_lottie(lottie_welcome, height=300, key="welcome")
+    else:
+        st.error("Failed to load the welcome animation.")
+
+    st.markdown(
+        """
+        <h2 style='text-align: center;'>An Interactive Exploration of the Invistico Airline Dataset</h2>
+        """,
+        unsafe_allow_html=True,
     )
 
-    st.write("Outliers capped at the 99th percentile.")
+    st.markdown(
+        """
+        **Embark on an adventure** where data meets storytelling. Dive deep into the patterns and insights hidden within the airline industry's customer satisfaction data.
 
-    st.markdown("""
-    *By capping outliers, we prevent them from distorting our statistical analyses and visualizations.*
-    """)
+        **Use the navigation bar** to choose what you want to explore. Whether it's understanding passenger demographics, flight operations, or uncovering factors affecting delays, this app puts you in control.
 
-    # Data Exploration
-    st.header("Data Exploration")
+        **Let's begin the journey!**
+        """
+    )
 
-    st.markdown("""
-    **Now comes the exciting part! Let's dive into the data to uncover patterns and insights through visualizations and statistical summaries.**
-    """)
+elif options == "Discover the Data 📊":
+    st.title("Discover the Data 📈")
 
-    # Define numerical columns
-    numerical_cols = [
-        'Age', 'Flight Distance', 'Departure Delay in Minutes', 'Arrival Delay in Minutes'
-    ]
+    st.markdown(
+        """
+        The **Invistico Airline Dataset** is a comprehensive collection of information about airline passengers, encompassing demographics, travel details, and satisfaction levels. This dataset serves as a window into understanding the dynamics of the airline industry through data-driven insights.
 
-    for col in numerical_cols:
-        col_var = col.replace(' ', '_')
+        **Select aspects to explore** below and immerse yourself in the data!
+        """
+    )
 
-        st.subheader(f"Analysis of {col}")
+    # User Choices for Exploration
+    exploration_options = st.multiselect(
+        "🔍 **Select aspects to explore:**",
+        ["Passenger Demographics 👥", "Flight Details ✈️", "Customer Satisfaction 😊"],
+    )
 
-        st.markdown(f"""
-        Let's explore the **{col}** variable to understand its distribution and key statistics.
-        """)
+    if "Passenger Demographics 👥" in exploration_options:
+        st.markdown("### Passenger Demographics 👥")
 
-        # Histogram
-        fig, ax = plt.subplots(figsize=(10, 4))
-        sns.histplot(df[col], bins=30, kde=True, color='skyblue', ax=ax)
-        ax.set_title(f'Histogram of {col}')
-        ax.set_xlabel(col)
-        ax.set_ylabel('Frequency')
-        st.pyplot(fig)
+        # Gender Distribution
+        st.markdown("**Gender Distribution**")
+        gender_counts = df['Gender'].value_counts()
+        fig_gender = px.pie(
+            names=gender_counts.index,
+            values=gender_counts.values,
+            color_discrete_sequence=px.colors.sequential.RdBu,
+            hole=0.4,
+        )
+        st.plotly_chart(fig_gender, use_container_width=True)
 
-        st.markdown(f"""
-        *The histogram provides a visual representation of the distribution of **{col}**.*
-        """)
+        # Dynamic Description for Gender Distribution
+        total_gender = gender_counts.sum()
+        male_percentage = (gender_counts.get('Male', 0) / total_gender) * 100
+        female_percentage = (gender_counts.get('Female', 0) / total_gender) * 100
 
-        # Display statistics in columns
-        mean_value = df[col].mean()
-        median_value = df[col].median()
-        std_value = df[col].std()
-        min_value = df[col].min()
-        max_value = df[col].max()
+        if abs(male_percentage - female_percentage) < 5:
+            gender_description = f"*The gender distribution is fairly balanced with **{male_percentage:.1f}% Male** and **{female_percentage:.1f}% Female** passengers.*"
+        else:
+            dominant_gender = 'Male' if male_percentage > female_percentage else 'Female'
+            dominant_percentage = max(male_percentage, female_percentage)
+            gender_description = f"*There is a noticeable imbalance in gender distribution, with **{dominant_percentage:.1f}% {dominant_gender}** passengers.*"
 
-        col1, col2, col3, col4, col5 = st.columns(5)
-        col1.metric("Mean", f"{mean_value:.2f}")
-        col2.metric("Median", f"{median_value:.2f}")
-        col3.metric("Std Dev", f"{std_value:.2f}")
-        col4.metric("Min", f"{min_value:.2f}")
-        col5.metric("Max", f"{max_value:.2f}")
+        st.markdown(gender_description)
 
-        st.markdown(f"""
-        *Here are some key statistics for **{col}** to complement the visual insights.*
-        """)
+        # Age Distribution
+        st.markdown("**Age Distribution of Passengers**")
+        fig_age = px.histogram(
+            df,
+            x='Age',
+            nbins=30,
+            color_discrete_sequence=['#FF7F50'],
+            template='plotly_white',
+        )
+        st.plotly_chart(fig_age, use_container_width=True)
 
-        # Provide insights
-        if col == 'Age':
-            insight_md = """### Insights from Histogram of Age
+        # Dynamic Description for Age Distribution
+        age_mean = df['Age'].mean()
+        age_median = df['Age'].median()
+        age_skew = skew(df['Age'])
 
-- The **Age** distribution is approximately symmetrical with a slight right skew.
-- The mean age is around **39 years**, with most passengers between **27 and 51 years old**.
-- This indicates a diverse passenger age range, focusing on the working-age population.
-- Minimal outliers suggest a consistent customer age demographic.
-"""
-        elif col == 'Flight Distance':
-            insight_md = """### Insights from Histogram of Flight Distance
+        if age_skew > 0.5:
+            age_skew_desc = "positively skewed (right-skewed)"
+        elif age_skew < -0.5:
+            age_skew_desc = "negatively skewed (left-skewed)"
+        else:
+            age_skew_desc = "approximately symmetrical"
 
-- The **Flight Distance** shows a bimodal distribution, hinting at two primary flight distance categories.
-- Peaks at shorter and medium distances suggest operations in both regional and medium-haul flights.
-- Mean flight distance is approximately **1981 km**.
-- This information helps in tailoring services for different flight lengths.
-"""
-        elif col == 'Departure Delay in Minutes':
-            insight_md = """### Insights from Histogram of Departure Delay in Minutes
+        age_description = f"*The age distribution has a mean of **{age_mean:.1f} years**, a median of **{age_median:.1f} years**, and is **{age_skew_desc}**. This indicates that the passenger age range is diverse, primarily focusing on the working-age population.*"
 
-- Majority of flights have **zero departure delay**, highlighting operational efficiency.
-- A long tail indicates some flights experience significant delays (up to **180 minutes**).
-- Mean delay is around **13 minutes**, but the median is **0**, emphasizing the effect of outliers.
-- Reducing delays can boost customer satisfaction and lower operational costs.
-"""
-        elif col == 'Arrival Delay in Minutes':
-            insight_md = """### Insights from Histogram of Arrival Delay in Minutes
+        st.markdown(age_description)
 
-- Most flights **arrive on time**, similar to departure punctuality.
-- The long tail shows some flights have significant arrival delays.
-- Strong correlation with departure delays suggests late departures often lead to late arrivals.
-- Improving departure times can positively impact arrival punctuality.
-"""
-        st.markdown(insight_md)
+    if "Flight Details ✈️" in exploration_options:
+        st.markdown("### Flight Details ✈️")
 
-        # Box Plot
-        fig_box, ax_box = plt.subplots(figsize=(10, 2))
-        sns.boxplot(x=df[col], color='lightgreen', ax=ax_box)
-        ax_box.set_title(f'Box Plot of {col}')
-        ax_box.set_xlabel(col)
-        st.pyplot(fig_box)
+        # Flight Class Distribution
+        st.markdown("**Flight Class Distribution**")
+        class_counts = df['Class'].value_counts()
+        fig_class = px.bar(
+            x=class_counts.index,
+            y=class_counts.values,
+            labels={'x': 'Class', 'y': 'Number of Passengers'},
+            color=class_counts.index,
+            color_discrete_sequence=px.colors.qualitative.Set2,
+        )
+        st.plotly_chart(fig_class, use_container_width=True)
 
-        st.markdown(f"""
-        *The box plot provides insights into the spread and outliers of **{col}**.*
-        """)
+        # Dynamic Description for Flight Class Distribution
+        most_common_class = class_counts.idxmax()
+        most_common_count = class_counts.max()
+        most_common_percentage = (most_common_count / class_counts.sum()) * 100
+        class_description = f"*The most common flight class is **{most_common_class}**, comprising **{most_common_percentage:.1f}%** of all passengers. This indicates a strong preference or availability in this class.*"
+        st.markdown(class_description)
 
-        # Quartiles and IQR in columns
-        Q1 = df[col].quantile(0.25)
-        Q2 = df[col].quantile(0.5)
-        Q3 = df[col].quantile(0.75)
-        IQR = Q3 - Q1
+        # Flight Distance Distribution
+        st.markdown("**Flight Distance Distribution**")
+        fig_distance = px.histogram(
+            df,
+            x='Flight Distance',
+            nbins=50,
+            color_discrete_sequence=['#2E91E5'],
+            template='plotly_white',
+        )
+        st.plotly_chart(fig_distance, use_container_width=True)
 
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("25th Percentile (Q1)", f"{Q1:.2f}")
-        col2.metric("Median (Q2)", f"{Q2:.2f}")
-        col3.metric("75th Percentile (Q3)", f"{Q3:.2f}")
-        col4.metric("Interquartile Range (IQR)", f"{IQR:.2f}")
+        # Dynamic Description for Flight Distance Distribution
+        distance_mean = df['Flight Distance'].mean()
+        distance_median = df['Flight Distance'].median()
+        distance_skew = skew(df['Flight Distance'])
 
-        st.markdown(f"""
-        *Understanding the quartiles helps in identifying the middle 50% of the data for **{col}**.*
-        """)
+        if distance_skew > 0.5:
+            distance_skew_desc = "positively skewed (right-skewed)"
+        elif distance_skew < -0.5:
+            distance_skew_desc = "negatively skewed (left-skewed)"
+        else:
+            distance_skew_desc = "approximately symmetrical"
 
-        # Provide insights
-        if col == 'Age':
-            insight_md = """### Insights from Box Plot of Age
+        distance_description = f"*The flight distance distribution has a mean of **{distance_mean:.1f} km**, a median of **{distance_median:.1f} km**, and is **{distance_skew_desc}**. This suggests that the airline operates a mix of short-haul and long-haul flights.*"
 
-- Confirms a symmetrical distribution of **Age**.
-- IQR spans from **27 to 51 years**, where 50% of passengers fall.
-- Minimal outliers indicate a stable age demographic.
-- Useful for targeted marketing strategies.
-"""
-        elif col == 'Flight Distance':
-            insight_md = """### Insights from Box Plot of Flight Distance
+        st.markdown(distance_description)
 
-- Wide IQR from **1359 km to 2543 km**.
-- Presence of outliers up to **6951 km** indicates some long-haul flights.
-- Helps in planning fleet utilization and fuel management.
-"""
-        elif col == 'Departure Delay in Minutes':
-            insight_md = """### Insights from Box Plot of Departure Delay in Minutes
+    if "Customer Satisfaction 😊" in exploration_options:
+        st.markdown("### Customer Satisfaction 😊")
 
-- Most flights have **no departure delay**.
-- IQR from **0 to 12 minutes**, with many outliers up to **180 minutes**.
-- Highlights the need to address factors causing significant delays.
-"""
-        elif col == 'Arrival Delay in Minutes':
-            insight_md = """### Insights from Box Plot of Arrival Delay in Minutes
+        # Satisfaction Counts
+        st.markdown("**Customer Satisfaction Distribution**")
+        satisfaction_counts = df['satisfaction'].value_counts()
+        fig_satisfaction = px.pie(
+            names=satisfaction_counts.index,
+            values=satisfaction_counts.values,
+            color_discrete_sequence=px.colors.sequential.Viridis,
+            hole=0.3,
+        )
+        st.plotly_chart(fig_satisfaction, use_container_width=True)
 
-- Similar pattern to departure delays.
-- IQR from **0 to 13 minutes**, with outliers up to **182 minutes**.
-- Emphasizes the impact of departure delays on arrival times.
-"""
-        st.markdown(insight_md)
+        # Dynamic Description for Customer Satisfaction Distribution
+        satisfied = satisfaction_counts.get('satisfied', 0)
+        dissatisfied = satisfaction_counts.get('dissatisfied', 0)
+        total_satisfaction = satisfied + dissatisfied
+        satisfied_pct = (satisfied / total_satisfaction) * 100
+        dissatisfied_pct = (dissatisfied / total_satisfaction) * 100
 
-    # Correlation Matrix and Heatmap
-    st.subheader("Correlation Matrix and Heatmap")
+        satisfaction_description = f"***{satisfied_pct:.1f}%** of passengers are satisfied, while **{dissatisfied_pct:.1f}%** are dissatisfied. This highlights the overall satisfaction levels among the airline's customers.*"
 
-    st.markdown("""
-    Let's examine how the numerical variables relate to each other using a correlation matrix and heatmap.
-    """)
+        st.markdown(satisfaction_description)
 
-    # Compute correlation matrix
-    corr_matrix = df[numerical_cols].corr()
+        # Satisfaction by Class
+        st.markdown("**Customer Satisfaction by Class**")
+        fig_sat_class = px.histogram(
+            df,
+            x='Class',
+            color='satisfaction',
+            barmode='group',
+            color_discrete_sequence=px.colors.qualitative.Pastel,
+            template='presentation',
+        )
+        st.plotly_chart(fig_sat_class, use_container_width=True)
 
-    st.write("Correlation Matrix:")
-    st.write(corr_matrix)
+        # Dynamic Description for Satisfaction by Class
+        sat_class = df.groupby('Class')['satisfaction'].value_counts(normalize=True).unstack().fillna(0)
+        sat_class['satisfied_pct'] = sat_class.get('satisfied', 0) * 100
+        sat_class_description = (
+            f"*In **{sat_class.index[0]}** class, **{sat_class['satisfied_pct'].iloc[0]:.1f}%** passengers are satisfied.*\n"
+            f"*In **{sat_class.index[1]}** class, **{sat_class['satisfied_pct'].iloc[1]:.1f}%** passengers are satisfied.*\n"
+            f"*In **{sat_class.index[2]}** class, **{sat_class['satisfied_pct'].iloc[2]:.1f}%** passengers are satisfied.*"
+        )
+        st.markdown(sat_class_description)
 
-    # Plot heatmap
-    fig_corr, ax_corr = plt.subplots(figsize=(8, 6))
-    sns.heatmap(corr_matrix, annot=True, fmt=".2f", cmap='coolwarm', ax=ax_corr)
-    ax_corr.set_title('Correlation Heatmap of Numerical Variables')
-    st.pyplot(fig_corr)
+elif options == "Unveil Insights 🔍":
+    st.title("Unveil Insights 🔎")
 
-    # Insights from Correlation
-    st.markdown("""
-    ### Insights from Correlation Matrix and Heatmap
+    st.markdown(
+        """
+        Delve deeper into the data to uncover hidden patterns and relationships that drive customer satisfaction and operational efficiency.
 
-    - **Strong Positive Correlation between Departure and Arrival Delays**: Flights that depart late tend to arrive late.
-    - **Negative Correlation between Age and Flight Distance**: Younger passengers often take longer flights, possibly due to travel preferences.
-    - **Positive Correlation between Flight Distance and Delays**: Longer flights may experience more delays.
-    - These insights can guide operational improvements and customer service strategies.
-    """)
+        **Choose an insight to explore** below and discover the stories the data tells!
+        """
+    )
 
-elif options == 'Conclusions and Recommendations':
-    st.header("Conclusions and Recommendations")
+    # User Choices for Insights
+    insights_options = st.selectbox(
+        "🔍 **Select an insight to explore:**",
+        [
+            "Age vs. Flight Distance 📏",
+            "Departure Delay vs. Arrival Delay ⏰",
+            "Satisfaction Factors 🌟",
+        ],
+    )
 
-    st.markdown("""
-    **After a thorough exploration of the dataset, we've gathered key insights and formulated recommendations to enhance the airline's operations and customer satisfaction.**
-    """)
+    # Sample the data for certain plots
+    sampled_df = df.sample(frac=0.005, random_state=42)
 
-    st.subheader("Key Insights")
+    if insights_options == "Age vs. Flight Distance 📏":
+        # Scatter plot without internal title
+        fig_age_distance = px.scatter(
+            sampled_df,
+            x='Age',
+            y='Flight Distance',
+            color='Type of Travel',
+            size='Flight Distance',
+            hover_data=['Class'],
+            template='ggplot2',
+        )
+        st.plotly_chart(fig_age_distance, use_container_width=True)
 
-    st.markdown("""
-    - **Passenger Demographics**: A wide age range is served, with a significant portion between **27 and 51 years old**. Younger passengers tend to take longer flights.
-    - **Flight Operations**: The airline operates short-haul, medium-haul, and some long-haul flights, as indicated by the bimodal flight distance distribution.
-    - **Delays**: Most flights are on time, but significant delays occur and are highly correlated between departure and arrival times.
-    """)
+        # Dynamic Description for Age vs Flight Distance
+        correlation = sampled_df['Age'].corr(sampled_df['Flight Distance'])
+        correlation_desc = "a strong positive" if correlation > 0.5 else "a moderate positive" if correlation > 0.3 else "a weak correlation"
+        age_distance_description = (
+            f"*There is **{correlation_desc} correlation ({correlation:.2f})** between age and flight distance. "
+            f"This suggests that **younger passengers** tend to take **longer flights**, potentially indicating a preference for long-distance travel or business trips.*"
+        )
+        st.markdown(age_distance_description)
 
-    st.subheader("Recommendations")
+    elif insights_options == "Departure Delay vs. Arrival Delay ⏰":
+        # Scatter plot with trendline without internal title
+        fig_delay = px.scatter(
+            sampled_df,
+            x='Departure Delay in Minutes',
+            y='Arrival Delay in Minutes',
+            trendline='ols',
+            color='satisfaction',
+            template='seaborn',
+        )
+        st.plotly_chart(fig_delay, use_container_width=True)
 
-    st.markdown("""
-    1. **Address Significant Delays**:
-       - Investigate root causes such as operational inefficiencies or maintenance issues.
-       - Implement predictive maintenance and optimize scheduling.
-    2. **Enhance On-Time Performance**:
-       - Improve ground operations for faster boarding and turnaround.
-       - Proactively communicate with passengers about delays.
-    3. **Customer Satisfaction Initiatives**:
-       - Develop targeted marketing for different age groups, focusing on younger passengers for longer flights.
-       - Offer personalized services and loyalty programs.
-    4. **Optimize Flight Routes**:
-       - Analyze route profitability to focus on high-demand flights.
-       - Adjust flight frequencies based on demand patterns.
+        # Dynamic Description for Departure Delay vs Arrival Delay
+        correlation = sampled_df['Departure Delay in Minutes'].corr(sampled_df['Arrival Delay in Minutes'])
+        if correlation > 0.7:
+            correlation_strength = "strong"
+        elif correlation > 0.4:
+            correlation_strength = "moderate"
+        else:
+            correlation_strength = "weak"
+        delay_description = (
+            f"*There is a **{correlation_strength} positive correlation ({correlation:.2f})** between departure delays and arrival delays. "
+            f"This indicates that **departure delays** significantly influence **arrival delays**, emphasizing the need to address factors causing departure delays to improve overall punctuality.*"
+        )
+        st.markdown(delay_description)
 
-    **Conclusion**
+    elif insights_options == "Satisfaction Factors 🌟":
+        st.markdown("### Satisfaction Factors 🌟")
 
-    By implementing these recommendations, the airline can improve operational efficiency, enhance customer satisfaction, and strengthen its market position. Continuous data analysis will support ongoing improvements and adaptation to changing market dynamics.
+        # Satisfaction vs. Service Ratings
+        service_columns = [
+            'Seat comfort',
+            'Food and drink',
+            'Inflight wifi service',
+            'Inflight entertainment',
+            'Online support',
+            'Ease of Online booking',
+            'On-board service',
+            'Leg room service',
+            'Baggage handling',
+            'Checkin service',
+            'Cleanliness',
+            'Online boarding',
+        ]
 
-    **Thank you for exploring the data with us!**
-    """)
+        avg_ratings = df.groupby('satisfaction')[service_columns].mean().reset_index()
+        melted_avg_ratings = avg_ratings.melt(id_vars='satisfaction', var_name='Service', value_name='Average Rating')
+
+        fig_service = px.bar(
+            melted_avg_ratings,
+            x='Service',
+            y='Average Rating',
+            color='satisfaction',
+            barmode='group',
+            template='plotly_white',
+        )
+        st.plotly_chart(fig_service, use_container_width=True)
+
+        # Dynamic Description for Satisfaction Factors
+        satisfied_ratings = melted_avg_ratings[melted_avg_ratings['satisfaction'] == 'satisfied']
+        dissatisfied_ratings = melted_avg_ratings[melted_avg_ratings['satisfaction'] == 'dissatisfied']
+
+        top_services = satisfied_ratings.sort_values(by='Average Rating', ascending=False).head(3)['Service'].tolist()
+        bottom_services = dissatisfied_ratings.sort_values(by='Average Rating').head(3)['Service'].tolist()
+
+        satisfaction_description = (
+            f"*Passengers who are satisfied generally give higher ratings across all service aspects. "
+            f"The top contributing services to satisfaction are **{', '.join(top_services)}**. "
+            f"Conversely, areas needing improvement include **{', '.join(bottom_services)}** to enhance overall customer satisfaction.*"
+        )
+        st.markdown(satisfaction_description)
+
+elif options == "Our Journey 🚀":
+    st.title("Conclusions and Recommendations 🚀")
+
+    st.markdown(
+        """
+        ---
+        **Key Insights**
+        """
+    )
+
+    # Add emojis next to each key insight
+    st.markdown(
+        """
+        - ✈️ **Passenger Demographics**: The airline serves a diverse age range, with younger passengers often taking longer flights.
+        - 🛫 **Flight Operations**: A mix of short-haul, medium-haul, and some long-haul flights are operated, catering to various travel needs.
+        - ⏰ **Delays**: Departure delays strongly affect arrival times, impacting customer satisfaction.
+        """
+    )
+
+    st.markdown(
+        """
+        ---
+        **Recommendations**
+        """
+    )
+
+    # Add emojis next to each recommendation
+    st.markdown(
+        """
+        1. 🛠️ **Minimize Delays**: Implement strategies to reduce departure delays, improving overall punctuality.
+        2. 🌟 **Enhance Services**: Focus on service aspects that significantly influence satisfaction, such as in-flight entertainment and comfort.
+        3. 🎯 **Targeted Marketing**: Develop campaigns aimed at younger travelers who are frequent long-haul passengers.
+        4. 📈 **Optimize Operations**: Analyze flight routes and schedules to maximize efficiency and profitability.
+        """
+    )
+
+    st.markdown(
+        """
+        ---
+        **Thank you for being a part of this data journey! 🚀**
+        """
+    )
+
+    # Closing Animation
+    lottie_closing = load_lottieurl(closing_animation_url)
+    if lottie_closing:
+        st_lottie(lottie_closing, height=200, key="closing")
+    else:
+        st.error("Failed to load the closing animation.")
 
 # Footer
 st.sidebar.markdown("---")
