@@ -90,6 +90,43 @@ if selected_menu == "Welcome":
         """
     )
 
+    # New section: Meet Our Team
+    st.markdown("## Meet Our Team")
+    st.markdown("We are BSIT 4 students, a passionate group dedicated to uncovering insights from the Invistico Airlines dataset. Our team combines various skills and perspectives to create this interactive data journey.")
+
+    # Team member cards
+    team_members = [
+        {"name": "Mark Kennth Badilla", "role": "Leader", "years": "SY 2020-2023", "image": "https://scontent.fcgy2-4.fna.fbcdn.net/v/t1.15752-9/462542089_1703313630429237_312007961235826364_n.jpg?_nc_cat=105&ccb=1-7&_nc_sid=9f807c&_nc_ohc=YvuwTONnT7UQ7kNvgGBd1ot&_nc_ht=scontent.fcgy2-4.fna&_nc_gid=A0U7n9W-S3xQkfl3ixwClkE&oh=03_Q7cD1QFJQ5lLLrjTeB7A1ud0M8ti1G7M24gd2naprhJ3nkEEOA&oe=672C9419"},
+        {"name": "Rob Borinaga", "role": "Member", "years": "SY 2019-2023", "image": "https://scontent.fcgy2-4.fna.fbcdn.net/v/t1.15752-9/462538749_1568925197074088_6661845771934051377_n.jpg?_nc_cat=108&ccb=1-7&_nc_sid=9f807c&_nc_ohc=ko9bt5DaWJYQ7kNvgECZG65&_nc_ht=scontent.fcgy2-4.fna&_nc_gid=ALRWuxK2i2W7dGoyV-jDT5a&oh=03_Q7cD1QG4A-PBucleyNi3gEwlYY9hhFBJ5f7lYs0gGsd9CB-okg&oe=672C8FD6"},
+        {"name": "Alestair Cyril Coyoca", "role": "Member", "years": "SY 2021-2024", "image": "https://scontent.fcgy2-4.fna.fbcdn.net/v/t1.15752-9/461838713_1963657944110054_1114849457222079080_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=9f807c&_nc_ohc=5NNy68l_XLIQ7kNvgEZ0y_1&_nc_ht=scontent.fcgy2-4.fna&_nc_gid=AFsn_5qN-N7ZjDpF6m4zHPc&oh=03_Q7cD1QG80ZApSjUJuI6GEfzCxp49Ov0YiiknWzbaEVk482aHsw&oe=672C7B67"},
+        {"name": "Carmelyn Nime Gerali", "role": "Member", "years": "SY 2018-2022", "image": "https://scontent.fcgy2-1.fna.fbcdn.net/v/t1.15752-9/462540186_1059839835604866_5455648228103355812_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=9f807c&_nc_ohc=y68x6dbpveUQ7kNvgF8T9xO&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=AWb_8iC_24b37jdIzK37WkR&oh=03_Q7cD1QFCVZgONdTrteILKRwmHIEGAdeMLrAoED1DbqULT3hjuA&oe=672C91F7"},
+        {"name": "James Alein Ocampo", "role": "Member", "years": "SY 2020-2024", "image": "https://scontent.fcgy2-2.fna.fbcdn.net/v/t1.15752-9/462537913_496803843176373_4085186211692713416_n.jpg?stp=dst-jpg_s2048x2048&_nc_cat=103&ccb=1-7&_nc_sid=9f807c&_nc_ohc=zS9PnTmqTgEQ7kNvgG1qUkx&_nc_ht=scontent.fcgy2-2.fna&_nc_gid=AmKdAIaAY3rj1D14o7b2UlV&oh=03_Q7cD1QEeVHmMg-PPQ_Yky6laPnLO1GSrvxCerJ-jb0xWJyY5Ww&oe=672C82D0"}
+    ]
+
+    # Create two rows: one for the top 3 cards, another for the bottom 2 cards
+    top_row = st.columns(3)
+    bottom_row = st.columns([1, 1, 1])  # Change this line
+
+    for i, member in enumerate(team_members):
+        if i < 3:
+            column = top_row[i]
+        else:
+            column = bottom_row[i - 3]
+        
+        with column:
+            st.markdown(
+            f"""
+            <div style="background-color: #1c1d24; border-radius: 10px; padding: 15px; margin-bottom: 10px; text-align: center; max-width: 380px;">
+                <img src="{member['image']}" style="border-radius: 50%; width: 150px; height: 150px; object-fit: cover; margin-bottom: 10px;">
+                <h3 style="margin: 0; color: #FFFFFF; padding: 0;">{member['name']}</h3>
+                <p style="margin: 5px 0; color: #4CAF50;">{member['role']}</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+  
+
 elif selected_menu == "Discover the Data":
     st.title("Discover the Data 📈")
 
@@ -386,14 +423,44 @@ elif selected_menu == "Our Journey":
         """
     )
 
-    # Add emojis next to each key insight
-    st.markdown(
-        """
-        - ✈️ **Passenger Demographics**: The airline serves a diverse age range, with younger passengers often taking longer flights.
-        - 🛫 **Flight Operations**: A mix of short-haul, medium-haul, and some long-haul flights are operated, catering to various travel needs.
-        - ⏰ **Delays**: Departure delays strongly affect arrival times, impacting customer satisfaction.
-        """
-    )
+    # Create a 3-column layout for the cards
+    col1, col2, col3 = st.columns(3)
+
+    # Card 1
+    with col1:
+        st.markdown(
+            """
+            <div style="background-color: #1c1d24; padding: 20px; border-radius: 10px; height: 200px;">
+                <h3 style="color: #4CAF50;">✈️ Passenger Demographics</h3>
+                <p style="color: #FFFFFF;">The airline serves a diverse age range, with younger passengers often taking longer flights.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Card 2
+    with col2:
+        st.markdown(
+            """
+            <div style="background-color: #262730; padding: 20px; border-radius: 10px; height: 200px;">
+                <h3 style="color: #2196F3;">🛫 Flight Operations</h3>
+                <p style="color: #FFFFFF;">A mix of short-haul, medium-haul, and some long-haul flights are operated, catering to various travel needs.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Card 3
+    with col3:
+        st.markdown(
+            """
+            <div style="background-color: #262730; padding: 20px; border-radius: 10px; height: 200px;">
+                <h3 style="color: #FFC107;">⏰ Delays</h3>
+                <p style="color: #FFFFFF;">Departure delays strongly affect arrival times, impacting customer satisfaction.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
 
     st.markdown(
         """
@@ -402,21 +469,68 @@ elif selected_menu == "Our Journey":
         """
     )
 
-    # Add emojis next to each recommendation
-    st.markdown(
-        """
-        1. 🛠️ **Minimize Delays**: Implement strategies to reduce departure delays, improving overall punctuality.
-        2. 🌟 **Enhance Services**: Focus on service aspects that significantly influence satisfaction, such as in-flight entertainment and comfort.
-        3. 🎯 **Targeted Marketing**: Develop campaigns aimed at younger travelers who are frequent long-haul passengers.
-        4. 📈 **Optimize Operations**: Analyze flight routes and schedules to maximize efficiency and profitability.
-        """
-    )
+    # Create a 4-column layout for the recommendations
+    col1, col2, col3, col4 = st.columns(4)
 
+    # Recommendation 1
+    with col1:
+        st.markdown(
+            """
+            <div style="text-align: center; padding: 10px;">
+                <h1 style="font-size: 48px;">🛠️</h1>
+                <h3 style="color: #FFFFFF;">Minimize Delays</h3>
+                <p style="color: #AAAAAA; font-size: 14px;">Implement strategies to reduce departure delays, improving overall punctuality.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Recommendation 2
+    with col2:
+        st.markdown(
+            """
+            <div style="text-align: center; padding: 10px;">
+                <h1 style="font-size: 48px;">🌟</h1>
+                <h3 style="color: #FFFFFF;">Enhance Services</h3>
+                <p style="color: #AAAAAA; font-size: 14px;">Focus on service aspects that significantly influence satisfaction, such as in-flight entertainment and comfort.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Recommendation 3
+    with col3:
+        st.markdown(
+            """
+            <div style="text-align: center; padding: 10px;">
+                <h1 style="font-size: 48px;">🎯</h1>
+                <h3 style="color: #FFFFFF;">Targeted Marketing</h3>
+                <p style="color: #AAAAAA; font-size: 14px;">Develop campaigns aimed at younger travelers who are frequent long-haul passengers.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    # Recommendation 4
+    with col4:
+        st.markdown(
+            """
+            <div style="text-align: center; padding: 10px;">
+                <h1 style="font-size: 48px;">📈</h1>
+                <h3 style="color: #FFFFFF;">Optimize Operations</h3>
+                <p style="color: #AAAAAA; font-size: 14px;">Analyze flight routes and schedules to maximize efficiency and profitability.</p>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     st.markdown(
         """
         ---
-        **Thank you for being a part of this data journey! 🚀**
-        """
+        <div style="text-align: center;">
+            <strong>Thank you for being a part of this data journey! 🚀</strong>
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
     # Closing Animation
