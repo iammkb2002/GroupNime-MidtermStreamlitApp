@@ -29,7 +29,7 @@ welcome_animation_url = "https://assets10.lottiefiles.com/packages/lf20_jcikwtux
 closing_animation_url = "https://assets8.lottiefiles.com/packages/lf20_x62chJ.json"  # Thank you animation
 
 # Sidebar navigation using option menu
-menu_options = ["Welcome 🎉", "Discover the Data 📊", "Unveil Insights 🔍", "Our Journey 🚀"]
+menu_options = ["Welcome", "Discover the Data", "Unveil Insights", "Our Journey"]
 
 # Horizontal menu
 selected_menu = option_menu(None, menu_options, 
@@ -51,7 +51,6 @@ st.markdown("""
         max-width: 1200px;
         padding-right: 1rem;
         padding-left: 1rem;
-        padding-bottom: 3rem;
     }
     [data-testid="stHorizontalBlock"] {
         align-items: center;
@@ -59,7 +58,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-if selected_menu == "Welcome 🎉":
+if selected_menu == "Welcome":
     # Welcome Page with Animation
     st.markdown(
         """
@@ -91,7 +90,7 @@ if selected_menu == "Welcome 🎉":
         """
     )
 
-elif selected_menu == "Discover the Data 📊":
+elif selected_menu == "Discover the Data":
     st.title("Discover the Data 📈")
 
     st.markdown(
@@ -259,7 +258,7 @@ elif selected_menu == "Discover the Data 📊":
         )
         st.markdown(sat_class_description)
 
-elif selected_menu == "Unveil Insights 🔍":
+elif selected_menu == "Unveil Insights":
     st.title("Unveil Insights 🔎")
 
     st.markdown(
@@ -377,7 +376,7 @@ elif selected_menu == "Unveil Insights 🔍":
         )
         st.markdown(satisfaction_description)
 
-elif selected_menu == "Our Journey 🚀":
+elif selected_menu == "Our Journey":
     st.title("Conclusions and Recommendations 🚀")
 
     st.markdown(
