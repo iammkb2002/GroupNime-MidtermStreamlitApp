@@ -5,3 +5,4 @@ streamlit-lottie
 requests
 scipy
 statsmodels
+streamlit-option-menu
