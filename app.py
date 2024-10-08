@@ -5,12 +5,13 @@ import plotly.graph_objects as go
 from streamlit_lottie import st_lottie
 import requests
 from scipy.stats import skew
+from streamlit_option_menu import option_menu
 
 # Configure the page
 st.set_page_config(
     page_title="Invistico Airlines: A Data Journey",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="collapsed",  # Add this line
 )
 
 # Function to load Lottie animations
@@ -27,12 +28,13 @@ def load_lottieurl(url: str):
 welcome_animation_url = "https://assets10.lottiefiles.com/packages/lf20_jcikwtux.json"  # Celebration animation
 closing_animation_url = "https://assets8.lottiefiles.com/packages/lf20_x62chJ.json"  # Thank you animation
 
-# Sidebar Configuration
-st.sidebar.title("Navigate")
-options = st.sidebar.radio(
-    "Go to",
-    ["Welcome 🎉", "Discover the Data 📊", "Unveil Insights 🔍", "Our Journey 🚀"],
-)
+# Sidebar navigation using option menu
+menu_options = ["Welcome 🎉", "Discover the Data 📊", "Unveil Insights 🔍", "Our Journey 🚀"]
+
+# Horizontal menu
+selected_menu = option_menu(None, menu_options, 
+    icons=['house', 'bar-chart-line', 'search', 'rocket'], 
+    menu_icon="cast", default_index=0, orientation="horizontal")
 
 # Load the Dataset
 @st.cache_data
@@ -42,19 +44,22 @@ def load_data():
 
 df = load_data()
 
-# Ensure the sidebar is wide enough to display full tags
-st.markdown(
-    """
-    <style>
-    [data-testid="stSidebar"] > div:first-child {
-        width: 300px;
+# Add this custom CSS after the st.set_page_config() call
+st.markdown("""
+<style>
+    .block-container {
+        max-width: 1200px;
+        padding-right: 1rem;
+        padding-left: 1rem;
+        padding-bottom: 3rem;
     }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+    [data-testid="stHorizontalBlock"] {
+        align-items: center;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-if options == "Welcome 🎉":
+if selected_menu == "Welcome 🎉":
     # Welcome Page with Animation
     st.markdown(
         """
@@ -86,7 +91,7 @@ if options == "Welcome 🎉":
         """
     )
 
-elif options == "Discover the Data 📊":
+elif selected_menu == "Discover the Data 📊":
     st.title("Discover the Data 📈")
 
     st.markdown(
@@ -254,7 +259,7 @@ elif options == "Discover the Data 📊":
         )
         st.markdown(sat_class_description)
 
-elif options == "Unveil Insights 🔍":
+elif selected_menu == "Unveil Insights 🔍":
     st.title("Unveil Insights 🔎")
 
     st.markdown(
@@ -372,7 +377,7 @@ elif options == "Unveil Insights 🔍":
         )
         st.markdown(satisfaction_description)
 
-elif options == "Our Journey 🚀":
+elif selected_menu == "Our Journey 🚀":
     st.title("Conclusions and Recommendations 🚀")
 
     st.markdown(
@@ -421,7 +426,3 @@ elif options == "Our Journey 🚀":
         st_lottie(lottie_closing, height=200, key="closing")
     else:
         st.error("Failed to load the closing animation.")
-
-# Footer
-st.sidebar.markdown("---")
-st.sidebar.write("Developed by **Group Nime**")
